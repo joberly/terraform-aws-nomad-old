@@ -149,6 +149,12 @@ variable "health_check_type" {
   default     = "EC2"
 }
 
+variable "service_linked_role_arn" {
+  description = "The ARN of the service-linked role that the ASG will use to call other AWS services"
+  type        = string
+  default     = null
+}
+
 variable "health_check_grace_period" {
   description = "Time, in seconds, after instance comes into service before checking health."
   type        = number
