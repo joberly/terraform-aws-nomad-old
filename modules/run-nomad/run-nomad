@@ -31,6 +31,7 @@ function print_usage {
   echo -e "  --systemd-stderr\t\tThe StandardError option of the systemd unit.  Optional.  If not configured, uses systemd's default (inherit)."
   echo -e "  --user\t\tThe user to run Nomad as. Optional. Default is to use the owner of --config-dir."
   echo -e "  --use-sudo\t\tIf set, run the Nomad agent with sudo. By default, sudo is only used if --client is set."
+  echo -e "  --node-class\t\tThe class of the client node for use with job placement. Only used if --client is set."
   echo -e "  --environment\t\A single environment variable in the key/value pair form 'KEY=\"val\"' to pass to Nomad as environment variable when starting it up. Repeat this option for additional variables. Optional."
   echo -e "  --skip-nomad-config\tIf this flag is set, don't generate a Nomad configuration file. Optional. Default is false."
   echo
@@ -129,7 +130,8 @@ function generate_nomad_config {
   local readonly user="${3}"
   local readonly datacenter="${4}"
   local readonly num_servers="${5}"
-  local readonly config_dir="${6}"
+  local readonly node_class="${6}"
+  local readonly config_dir="${7}"
   local readonly config_path="$config_dir/$NOMAD_CONFIG_FILE"
 
   local instance_id=""
@@ -154,10 +156,16 @@ EOF
   fi
 
   local client_config=""
+  local client_node_class=""
   if [[ "$client" == "true" ]]; then
+    if [[ -n "$node_class" ]]; then
+      client_node_class="node_class = $node_class"
+    fi
     client_config=$(cat <<EOF
 client {
   enabled = true
+
+  $client_node_class
 }
 EOF
 )
@@ -278,6 +286,7 @@ function run {
   local datacenter=""
   local skip_nomad_config="false"
   local use_sudo=""
+  local node_class=""
   local environment=()
   local all_args=()
 
@@ -345,6 +354,11 @@ function run {
         ;;
       --use-sudo)
         use_sudo="true"
+        ;;
+      --node-class)
+        assert_not_empty "$key" "$2"
+        node_class="$2"
+        shift
         ;;
       --environment)
         assert_not_empty "$key" "$2"
@@ -417,6 +431,7 @@ function run {
       "$user" \
       "$datacenter" \
       "$num_servers" \
+      "$node_class" \
       "$config_dir"
   fi
 
