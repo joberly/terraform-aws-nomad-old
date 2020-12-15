@@ -159,13 +159,16 @@ EOF
   local client_node_class=""
   if [[ "$client" == "true" ]]; then
     if [[ -n "$node_class" ]]; then
-      client_node_class="node_class = $node_class"
+      client_node_class=$(cat <<EOF
+  node_class = "$node_class"
+EOF
+)
     fi
     client_config=$(cat <<EOF
 client {
   enabled = true
 
-  $client_node_class
+$client_node_class
 }
 EOF
 )
