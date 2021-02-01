@@ -89,6 +89,12 @@ variable "cluster_tag_value" {
   default     = "auto-join"
 }
 
+variable "enabled_metrics" {
+  description = "List of metrics to enable for the autoscaling group."
+  type        = list(string)
+  default     = []
+}
+
 variable "termination_policies" {
   description = "A list of policies to decide how the instances in the auto scale group should be terminated. The allowed values are OldestInstance, NewestInstance, OldestLaunchConfiguration, ClosestToNextInstanceHour, Default."
   type        = string
