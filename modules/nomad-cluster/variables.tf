@@ -246,3 +246,14 @@ variable "protect_from_scale_in" {
   default     = false
 }
 
+variable "allow_outbound_cidr_blocks" {
+  description = "Allow outbound traffic to these CIDR blocks."
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "iam_permissions_boundary" {
+  description = "If set, restricts the created IAM role to the given permissions boundary"
+  type        = string
+  default     = null
+}

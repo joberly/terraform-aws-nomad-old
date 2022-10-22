@@ -2,9 +2,9 @@
 # REQUIRE A SPECIFIC TERRAFORM VERSION OR HIGHER
 # ----------------------------------------------------------------------------------------------------------------------
 terraform {
-  # This module is now only being tested with Terraform 0.13.x. However, to make upgrading easier, we are setting
+  # This module is now only being tested with Terraform 1.0.x. However, to make upgrading easier, we are setting
   # 0.12.26 as the minimum version, as that version added support for required_providers with source URLs, making it
-  # forwards compatible with 0.13.x code.
+  # forwards compatible with 1.0.x code.
   required_version = ">= 0.12.26"
 }
 
@@ -143,6 +143,7 @@ resource "aws_security_group" "lc_security_group" {
 }
 
 resource "aws_security_group_rule" "allow_ssh_inbound" {
+  count       = length(var.allowed_ssh_cidr_blocks) > 0 ? 1 : 0
   type        = "ingress"
   from_port   = var.ssh_port
   to_port     = var.ssh_port
@@ -157,7 +158,7 @@ resource "aws_security_group_rule" "allow_all_outbound" {
   from_port   = 0
   to_port     = 0
   protocol    = "-1"
-  cidr_blocks = ["0.0.0.0/0"]
+  cidr_blocks = var.allow_outbound_cidr_blocks
 
   security_group_id = aws_security_group.lc_security_group.id
 }
@@ -204,6 +205,8 @@ resource "aws_iam_role" "instance_role" {
   name_prefix        = var.cluster_name
   assume_role_policy = data.aws_iam_policy_document.instance_role.json
 
+  permissions_boundary = var.iam_permissions_boundary
+
   # aws_iam_instance_profile.instance_profile in this module sets create_before_destroy to true, which means
   # everything it depends on, including this resource, must set it as well, or you'll get cyclic dependency errors
   # when you try to do a terraform destroy.
@@ -223,4 +226,3 @@ data "aws_iam_policy_document" "instance_role" {
     }
   }
 }
-

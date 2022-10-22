@@ -12,9 +12,9 @@
 # REQUIRE A SPECIFIC TERRAFORM VERSION OR HIGHER
 # ----------------------------------------------------------------------------------------------------------------------
 terraform {
-  # This module is now only being tested with Terraform 0.13.x. However, to make upgrading easier, we are setting
+  # This module is now only being tested with Terraform 1.0.x. However, to make upgrading easier, we are setting
   # 0.12.26 as the minimum version, as that version added support for required_providers with source URLs, making it
-  # forwards compatible with 0.13.x code.
+  # forwards compatible with 1.0.x code.
   required_version = ">= 0.12.26"
 }
 
@@ -64,7 +64,7 @@ module "servers" {
 
   cluster_name  = "${var.cluster_name}-server"
   cluster_size  = var.num_servers
-  instance_type = "t2.micro"
+  instance_type = var.server_instance_type
 
   # The EC2 Instances will use these tags to automatically discover each other and form a cluster
   cluster_tag_key   = var.cluster_tag_key
@@ -216,4 +216,3 @@ data "aws_subnet_ids" "default" {
 
 data "aws_region" "current" {
 }
-
